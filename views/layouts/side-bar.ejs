@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <link href="/public/styles/style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <%- include('../partials/header.ejs') %>
+      <main>
+        <div class="sidebar-layout">
+          <div class="body">
+            <%- body %>
+          </div>
+          <div class="sidebar">
+              <h2>Other Profiles</h2>
+              <ul class="profiles-list">
+                  <% for (let i = 0; i < otherProfiles.length; i++) { %>
+                      <li><a href="/profiles/<%= otherProfiles[i].id %>"><%= otherProfiles[i].name%></a></li>
+                  <% } %>
+              </ul>
+          </div>
+        </div>
+      </main>
+      <%- include('../partials/footer.ejs') %>
+    </div>
+  </body>
+</html>

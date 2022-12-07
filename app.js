@@ -1,85 +1,61 @@
-// Dependencies
-const express = require("express");
-const expressLayouts = require("express-ejs-layouts");
-const path = require("path");
-const bodyParser = require("body-parser");
-const passport = require("passport");
-const LocalStrategy = require("passport-local");
-const cookieParser = require("cookie-parser");
+"use strict";
 
-// Db Setup
-const mongoose = require("mongoose");
-const expressEjsLayouts = require("express-ejs-layouts");
-const uri = "mongodb+srv://user-02:qCRv7kEhqCbbaOxp@ssd.bfarfsk.mongodb.net/NodeDay05?retryWrites=true&w=majority";
-
-// Set up mongoose
-mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true});
+//MongoDB connection
+const { mongoose } = require("mongoose");
+const uri =
+    "mongodb+srv://user-02:qCRv7kEhqCbbaOxp@ssd.bfarfsk.mongodb.net/NodeAssignment03"
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
-db.once("open", function () {
-    console.log("Connected to Mongo");
-});
-
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-// Set up server
+//Requirements
+const express = require("express");
+const path = require("path");
+const expressLayouts = require("express-ejs-layouts");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const logger = require("morgan");
+
+//Create App Server & Port
 const app = express();
+const port = process.envPORT || 3000;
 
-// parse form data and JSON
-app.use(express.urlencoded({extended: true}));
-app.use(express.json());
-app.use(bodyParser.urlencoded({extended: false}));
+// Allow cross origin requests from any port on local machine
+app.use(cors({ origin: [/127.0.0.1*/, /localhost*/] }));
 
-// session management
-const session = require("express-session");
-const MongoDBStore = require("connect-mongodb-session")(session);
-const store = new MongoDBStore({
-    uri: uri,
-    collection: "sessions",
-});
-store.on("error", function (error) {
-    console.log(error);
-});
-app.use(
-    require("express-session")({
-        secret: "session secret",
-        resave: false,
-        saveUninitialized: false,
-        cookie: { maxAge: 1000 * 60 },
-        store: store,
-    })
-);
-app.use(cookieParser());
-
-// initialize passport and configure for User model
-app.use(passport.initialize());
-app.use(passport.session());
-const User = require("./models/User");
-passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
-
-// ejs templating
-app.set("view engine", "ejs");
-//layouts
-app.use(expressEjsLayouts);
-app.set("layout", "./layouts/main-layout.ejs");
-// make views folder globally accessible 
-app.set("views", path.join(__dirname, "views"));
-// make public folder accessible for serving static files
-app.use(express.static("public"));
-
-// Index routes
+// Load Routers
 const indexRouter = require("./routers/indexRouter");
+const apiRouter = require("./routers/apiRouter");
+const profilesRouter = require("./routers/profilesRouter");
+
+//Allow Access to Views and public folder
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
+
+//Use Logger
+app.use(logger("dev"));
+
+// Layouts
+app.use(expressLayouts);
+app.set("layout", "./layouts/full-width");
+
+// Public static assets
+app.use("/public", express.static("public"));
+app.set("public", path.join(__dirname, "public"));
+
+// Body parser
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+
+//Set Router Paths
 app.use(indexRouter);
+app.use("/profiles", profilesRouter);
+app.use("/api", apiRouter);
 
-// User routes
-const userRouter = require("./routers/userRouter");
-app.use("/user", userRouter);
+//Set Error Message for Invalid URL
+app.all("/*", (req, res) => {
+    res.status(404).send("File Not Found");
+});
 
-// secure routes
-const secureRouter = require("./routers/secureRouter");
-app.use("/secure", secureRouter);
-
-// start listening
-const port = process.env.PORT || 3003;
-app.listen(port, () => console.log(`Auth Demo listening on port ${port}`));
+//Activate Server
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));

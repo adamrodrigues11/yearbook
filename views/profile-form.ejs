@@ -1,0 +1,11 @@
+<h1><%= title %> </h1>
+
+<form action="/profiles/profile-form<%= profile ? "/" + profile.id : ""%>" method="POST">
+    <input type="hidden" id="profile_id" name="profile_id" value="<% profile?.id %>">
+    <label for="name">Name:</label>
+    <input id="name" name="name" type="text" value="<%= profile?.name ?? ""%>">
+    <button type="submit" value="submit">Submit</button> 
+</form>
+<div class="message">
+    <p><%= errorMsg %></p>
+</div>
