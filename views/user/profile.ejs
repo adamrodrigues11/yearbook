@@ -1,0 +1,25 @@
+<h1>Profile</h1>
+    
+Username: <%= user.username %><br/>
+Name: <%= user.firstName %> <%= user.lastName %><br/>
+Email: <%= user.email %><br/>
+
+<% if(reqInfo.roles?.length) { %>
+Roles: <%= reqInfo.roles %>
+<% } %>
+
+<!-- <img src="<%= user.profilePhotoPath ?? ""%>"> -->
+
+<h2>Interests</h2>
+<div class="interests-list">
+    <ul>
+        <% for (let i = 0; i < user.interests.length; i++) { %>
+        <li><%= user.interests[i] %></li>
+        <% } %>
+    </ul>
+</div>
+
+<a href="/user/profile-form<%= user.username %>"><button>Edit Profile</button></a>
+<div class="message">
+    <p><%= errorMsg ? errorMsg : "" %></p>
+</div>
