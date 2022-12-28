@@ -7,7 +7,7 @@ const path = require("path");
 // const cors = require("cors");
 const bodyParser = require("body-parser");
 const passport = require("passport");
-const LocalStrategy = require("passport-local");
+const LocalStrategy = require("passport-local").Strategy;
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 

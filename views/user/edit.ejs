@@ -1,8 +1,8 @@
-<!-- user for register as well -->
-
 <h1><%= title %> </h1>
-<form action="/user/profile-form" method="POST">   
+
+<form action="/user/<%= user.username %>/edit" method="POST">   
     <table>
+        <% if (reqInfo.roles.includes("admin") || reqInfo.username === user.username) { %> 
         <tr>
             <td>Username: </td>
             <td><input name="username" type="text"
@@ -14,11 +14,11 @@
                        value="<%= user.email ? user.email : '' %>"></td>
         </tr>
         <tr>
-            <td>Password:</td>
+            <td>New Password:</td>
             <td><input name="password" type="password"></td>
         </tr>
         <tr>
-            <td>Password Confirmation:</td>
+            <td>New Password Confirmation:</td>
             <td><input name="passwordConfirm" type="password"></td>
         </tr>
         <tr>
@@ -39,12 +39,25 @@
             <td>Profile Picture</td>
             <td><input name="profilePicturePath" type="image"></td>
         </tr>
+    <% } %>
+    <% if(reqInfo.roles.includes("manager")) { %>
+        <tr>
+            <td>Role:</td>
+            <td>
+                <select name="role" id="role">
+                    <option value="user">User</option>
+                    <option value="manager">Manager</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </td>
+        </tr>    
+    <% } %> 
         <tr>
             <td></td>
             <td><input type="submit" value="Submit"></td>
         </tr>
     </table>
 </form>
-<div class="message">
-    <p><%= errorMsg %></p>
-</div>
+<!-- <div class="message">
+    <p><%= // errorMsg %></p>
+</div> -->

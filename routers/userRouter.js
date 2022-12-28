@@ -16,21 +16,21 @@ userRouter.post("/login", userController.LoginUser);
 userRouter.get("/logout", userController.Logout);
 
 // register - GET
-userRouter.get("/profile-form", userController.Register);
+userRouter.get("/register", userController.Register);
 
 // register user - POST
-userRouter.post("/profile-form", userController.RegisterUser);
+userRouter.post("/register", userController.RegisterUser);
 
 // edit - GET
-userRouter.get("/profile-form/:username", userController.Edit);
+userRouter.get("/:username/edit", userController.Edit);
 
 // edit profile - POST
-userRouter.post("/profile-form/:username", userController.EditProfile);
-
-// view single user profile
-userRouter.get("/:username", userController.ProfileDetails);
+userRouter.post("/:username/edit", userController.EditProfile);
 
 // delete user
 userRouter.get("/:username/delete", userController.DeleteUserByUsername);
+
+// view single user profile
+userRouter.get("/:username", userController.ProfileDetails);
 
 module.exports = userRouter;

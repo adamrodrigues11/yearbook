@@ -1,30 +1,21 @@
+// I'm getting the username from passport mongoose and roles from the session now
+// need to figure out how to not read roles from the db once they area available in the session
+
+
 "use strict";
 class RequestService {
   // Constructor
   RequestService() {}
   
-  reqHelper(req, permittedRoles = []) {
-    // restrict permissions by default
-    let rolePermitted = false;
+  reqHelper(req) {
     
     // Send username and login status to view if authenticated.
     if (req.isAuthenticated()) {
-      if (req.session.roles) {
-        // check if the user's roles matches any of the permitted roles for this resource
-        let matchingRoles = req.session.roles?.filter((role) =>
-          permittedRoles.includes(role)
-        );
-        if (matchingRoles.length > 0) {
-          rolePermitted = true;
-        }
-      } else {
-        req.session.roles = [];
-      }
+      const roles = req.session.roles ?? [];
       return {
         authenticated: true,
         username: req.user.username,
-        roles: req.session.roles,
-        rolePermitted: rolePermitted,
+        roles: roles,
       };
     }
     // Send logged out status to form if not authenticated.

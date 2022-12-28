@@ -19,7 +19,12 @@ Roles: <%= reqInfo.roles %>
     </ul>
 </div>
 
-<a href="/user/profile-form<%= user.username %>"><button>Edit Profile</button></a>
+<% if(reqInfo.roles.includes("manager") || user.username === reqInfo.username) { %> 
+    <a href="/user/<%= user.username %>/edit"><button>Edit Profile</button></a>
+<% } %>
+<% if(reqInfo.roles.includes("admin")) { %> 
+    <a href="/user/<%= user.username %>/delete"><button>Delete Profile</button></a>
+<% } %>
 <div class="message">
     <p><%= errorMsg ? errorMsg : "" %></p>
 </div>

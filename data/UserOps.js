@@ -1,9 +1,20 @@
 "use strict";
 
+const { DeleteUserByUsername } = require("../controllers/UserController");
 const User = require("../models/User");
 
 class UserOps {
     UserOps() {}
+
+    async getAllUsers() {
+        let users = await User.find({});
+        if(users) {
+            return users;
+        }
+        else {
+            return [];
+        }
+    }
 
     async getUserByUsername(username) {
         let user = await User.findOne({username: username}, {_id: 0});
@@ -23,6 +34,33 @@ class UserOps {
         else {
             return [];
         }
+    }
+
+    async editUserByUsername(username, newUserData, reqRoles) {
+        // add validation of roles in here before editing user in the database
+
+
+
+
+
+        return {
+            updatedUser: {},
+            errorMsg: "",
+        };
+    }
+
+    async deleteUserByUsername(username) {
+        User.findOneAndDelete({username: username}, function (err, docs) {
+            if (err) {
+                console.log(err.message);
+                throw err;
+            }
+            else {
+                console.log("Deleted User: ", docs);
+            }
+        });
+
+        return errorMsg = "";
     }
     // async getAllProfiles() {
     //     let response = {
