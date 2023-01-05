@@ -4,6 +4,7 @@
     <table>
         <% if (reqInfo.roles.includes("admin") || reqInfo.username === user.username) { %> 
         <tr>
+            <!-- make readonly -->
             <td>Username: </td>
             <td><input name="username" type="text"
                        value="<%= user.username ? user.username : '' %>"></td>
@@ -13,14 +14,18 @@
             <td><input name="email" type="text"
                        value="<%= user.email ? user.email : '' %>"></td>
         </tr>
+        <!-- <tr>
+            <td>Old Password:</td>
+            <td><input name="oldPassword" type="password"></td>
+        </tr>
         <tr>
             <td>New Password:</td>
-            <td><input name="password" type="password"></td>
+            <td><input name="newPassword" type="password"></td>
         </tr>
         <tr>
             <td>New Password Confirmation:</td>
-            <td><input name="passwordConfirm" type="password"></td>
-        </tr>
+            <td><input name="newPasswordConfirm" type="password"></td>
+        </tr> -->
         <tr>
             <td>First Name: </td>
             <td><input name="firstName" type="text"
@@ -37,7 +42,7 @@
         </tr>
         <tr>
             <td>Profile Picture</td>
-            <td><input name="profilePicturePath" type="image"></td>
+            <td><input name="profilePhotoPath" type="image"></td>
         </tr>
     <% } %>
     <% if(reqInfo.roles.includes("manager")) { %>

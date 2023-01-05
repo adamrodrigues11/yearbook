@@ -4,8 +4,8 @@ Username: <%= user.username %><br/>
 Name: <%= user.firstName %> <%= user.lastName %><br/>
 Email: <%= user.email %><br/>
 
-<% if(reqInfo.roles?.length) { %>
-Roles: <%= reqInfo.roles %>
+<% if(user.roles?.length > 0) { %>
+Roles: <%= user.roles %>
 <% } %>
 
 <!-- <img src="<%= user.profilePhotoPath ?? ""%>"> -->

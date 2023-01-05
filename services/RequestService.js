@@ -1,7 +1,3 @@
-// I'm getting the username from passport mongoose and roles from the session now
-// need to figure out how to not read roles from the db once they area available in the session
-
-
 "use strict";
 class RequestService {
   // Constructor

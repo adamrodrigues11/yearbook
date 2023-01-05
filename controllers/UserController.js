@@ -7,7 +7,6 @@ const passport = require("passport");
 const UserOps = require("../data/UserOps");
 const _userOps = new UserOps();
 const RequestService = require("../services/RequestService");
-const { session } = require("passport");
 
 // Register / create user - GET
 exports.Register = async function (req, res) {
@@ -18,7 +17,6 @@ exports.Register = async function (req, res) {
         errorMsg: "",
         reqInfo: reqInfo,
     });
-    console.log("Register");
 };
 
 // Register / create user - POST
@@ -33,7 +31,8 @@ exports.RegisterUser = async function (req, res) {
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             interests: interests,
-            profilePhotPath: req.body.profilePhotPath,
+            profilePhotPath: req.body.profilePhotoPath,
+            roles: ["user"],
         });
         User.register(
             new User(newUser),
@@ -52,9 +51,9 @@ exports.RegisterUser = async function (req, res) {
                 // if no error, redirect to their profile page
                 passport.authenticate("local")(req, res, function () {
                     // move to profile details page since both login and register are redirected there
-                    const sessionData = req.session;
-                    sessionData.username = newUser.username;
-                    res.redirect(`/user/${newUser.username}`);
+                    // const sessionData = req.session;
+                    // sessionData.username = newUser.username;
+                    res.redirect(newUser.username);
                 });
             }
         );
@@ -92,10 +91,9 @@ exports.Login = async function (req, res) {
 exports.LoginUser = function (req, res, next) {
     const username = req.body.username;
     passport.authenticate("local", {
-        successRedirect: `${username}`,
+        successRedirect: username,
         failureRedirect: "login?errorMsg=Invalid login",
     })(req, res, next);
-    // add username to session somehow on successful login
 };
 
 exports.Logout = async function (req, res) {
@@ -130,7 +128,7 @@ exports.ViewAllProfiles = async function(req, res) {
         });
     }
     else {
-        res.redirect("../login?errorMsg=You must be logged in to view this page.");
+        res.redirect("user/login?errorMsg=You must be logged in to view this page.");
     }
 };
 
@@ -144,23 +142,22 @@ exports.ProfileDetails = async function (req, res) {
         if(reqInfo.roles.length === 0) {
             let roles = await _userOps.getRolesByUsername(username);
             req.session.roles = roles;
-            reqInfo.roles = roles;
-            console.log("profile details found roles", roles);
+            reqInfo.roles = roles;    
         }
-        let user = await _userOps.getUserByUsername(username);
-        let otherUsers = await _userOps.getAllUsers();
-        console.log(reqInfo);
+        const user = await _userOps.getUserByUsername(username);
+        const allUsers = await _userOps.getAllUsers();
+        const otherUsers = allUsers.filter(u => u.username !== user.username);
         return res.render("user/profile", {
             title: `Profile - ${user.username}`,
             user: user,
             otherUsers: otherUsers,
             reqInfo: reqInfo,
             errorMsg: errorMsg,
-            // layout: "./layouts/side-bar.ejs",
+            layout: "./layouts/side-bar.ejs",
         });
     }
     else {
-        res.redirect("../login?errorMsg=You must be logged in to view this page.");
+        res.redirect("login?errorMsg=You must be logged in to view this page.");
     }
 };
 
@@ -170,6 +167,7 @@ exports.Edit = async function (req, res) {
     let reqInfo = RequestService.reqHelper(req);
     if(reqInfo.authenticated) {
         let username = req.params.username;
+        // if active user is a manager or selected profile has the same username as active user
         if(reqInfo.roles?.includes("manager") || username === reqInfo.username) {
             let user = await _userOps.getUserByUsername(username);
             return res.render("user/edit", {
@@ -180,7 +178,7 @@ exports.Edit = async function (req, res) {
             });
         }
         else {
-            res.redirect(`${username}?errorMsg=You do not have permission to edit this user's profile`);
+            res.redirect(`./?errorMsg=You do not have permission to edit this user's profile`);
         }
     }
     else {
@@ -197,49 +195,40 @@ exports.EditProfile = async function (req, res) {
     let newUserData = req.body;
     let errorMsg;
     try {
-        _userOps.editUserByUsername(username, newUserData, reqInfo.roles);
-        res.redirect(`/${username}`);
+        _userOps.editUserByUsername(username, newUserData, reqInfo);
+        res.redirect(`../${username}`)
+        return
     } 
     catch(error) {
         errorMsg = error.message;
     }
-    res.redirect(`/${username}/errorMsg=${errorMsg}`);
+    res.redirect(`./edit?errorMsg=${errorMsg}`);
 };
 
 // delete user
 // only admin
 exports.DeleteUserByUsername = async function (req, res) {
     let reqInfo = RequestService.reqHelper(req);
+    if(!reqInfo.authenticated) {
+        res.redirect("../login?errorMsg=You must be logged in to view this page.");
+        return
+    }
     let username = req.params.username;
     let errorMsg = "You do not have permission to delete users"; // default errorMsg
     // ensure the req comes from an admin
     if(reqInfo.roles?.includes("admin")) {
-        // alert(`Are you sure you want to delete the user ${username}?`)
         try {
             _userOps.deleteUserByUsername(username);
-            res.redirect("/"); // redirect to all profiles
+            res.redirect("../"); // redirect to all profiles
+            return
         } 
         catch(error) {
             errorMsg = error.message;
         }
     }
     // if not admin or an error occurs, redirect to user profile page with errorMsg
-    res.redirect(`/${username}?errorMsg=${errorMsg}`);
+    res.redirect(`./?errorMsg=${errorMsg}`);
 };
-
-
-// async function renderProfile(profile, res) {
-//     const {profiles, errorMsg} = await _profileOps.getAllProfiles();
-//     const otherProfiles = profiles.filter(
-//         p => p.id !== profile.id);
-//     res.render("profile", {
-//         title: profile.name,
-//         profile: profile,
-//         otherProfiles: otherProfiles,
-//         layout: "./layouts/side-bar",
-//         errorMsg: errorMsg
-//     });    
-// }
 
 
 // saving comments to user profile

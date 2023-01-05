@@ -20,8 +20,8 @@
               <ul class="profiles-list">
                   <% for (let i = 0; i < otherUsers.length; i++) { %>
                       <li>
-                        <a href="/user/<%= otherUsers[i].username %>">  
-                          <%= otherUsers[i].firstName + otherUsers[i].lastName %>
+                        <a href="./<%= otherUsers[i].username %>">  
+                          <%= otherUsers[i].firstName + " " + otherUsers[i].lastName %>
                         </a>
                       </li>
                   <% } %>

@@ -19,9 +19,6 @@ const userSchema = new Schema(
             type: String,
             index: true,
         },
-        // password: {
-        //     type: String,
-        // },
         firstName: {
             type: String,
         },
