@@ -1,0 +1,68 @@
+<h1><%= title %> </h1>
+
+<form action="/user/<%= user.username %>/edit" method="POST">   
+    <table>
+        <% if (reqInfo.roles.includes("admin") || reqInfo.username === user.username) { %> 
+        <tr>
+            <!-- make readonly -->
+            <td>Username: </td>
+            <td><input name="username" type="text"
+                       value="<%= user.username ? user.username : '' %>"></td>
+        </tr>
+        <tr>
+            <td>Email: </td>
+            <td><input name="email" type="text"
+                       value="<%= user.email ? user.email : '' %>"></td>
+        </tr>
+        <!-- <tr>
+            <td>Old Password:</td>
+            <td><input name="oldPassword" type="password"></td>
+        </tr>
+        <tr>
+            <td>New Password:</td>
+            <td><input name="newPassword" type="password"></td>
+        </tr>
+        <tr>
+            <td>New Password Confirmation:</td>
+            <td><input name="newPasswordConfirm" type="password"></td>
+        </tr> -->
+        <tr>
+            <td>First Name: </td>
+            <td><input name="firstName" type="text"
+                       value="<%= user.firstName ? user.firstName : '' %>"></td>
+        </tr> 
+        <tr>
+            <td>Last Name: </td>
+            <td><input name="lastName" type="text"
+                       value="<%= user.lastName ? user.lastName : '' %>"></td>
+        </tr>                        
+        <tr>
+            <td>Interests:</td>
+            <td><input name="interests" type="text" value="<%= user.interests ? user.interests.join(", ") : '' %>"></td>
+        </tr>
+        <tr>
+            <td>Profile Picture</td>
+            <td><input name="profilePhotoPath" type="image"></td>
+        </tr>
+    <% } %>
+    <% if(reqInfo.roles.includes("manager")) { %>
+        <tr>
+            <td>Role:</td>
+            <td>
+                <select name="role" id="role">
+                    <option value="user">User</option>
+                    <option value="manager">Manager</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </td>
+        </tr>    
+    <% } %> 
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Submit"></td>
+        </tr>
+    </table>
+</form>
+<!-- <div class="message">
+    <p><%= // errorMsg %></p>
+</div> -->

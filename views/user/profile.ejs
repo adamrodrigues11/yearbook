@@ -1,0 +1,30 @@
+<h1>Profile</h1>
+    
+Username: <%= user.username %><br/>
+Name: <%= user.firstName %> <%= user.lastName %><br/>
+Email: <%= user.email %><br/>
+
+<% if(user.roles?.length > 0) { %>
+Roles: <%= user.roles %>
+<% } %>
+
+<!-- <img src="<%= user.profilePhotoPath ?? ""%>"> -->
+
+<h2>Interests</h2>
+<div class="interests-list">
+    <ul>
+        <% for (let i = 0; i < user.interests.length; i++) { %>
+        <li><%= user.interests[i] %></li>
+        <% } %>
+    </ul>
+</div>
+
+<% if(reqInfo.roles.includes("manager") || user.username === reqInfo.username) { %> 
+    <a href="/user/<%= user.username %>/edit"><button>Edit Profile</button></a>
+<% } %>
+<% if(reqInfo.roles.includes("admin")) { %> 
+    <a href="/user/<%= user.username %>/delete"><button>Delete Profile</button></a>
+<% } %>
+<div class="message">
+    <p><%= errorMsg ? errorMsg : "" %></p>
+</div>

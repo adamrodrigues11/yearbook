@@ -1,9 +1,19 @@
 <header>
     <!-- <h1><%#= title %></h1> -->
     <nav>
-        <a href="/">Home</a>
-        <a href="/about">About</a>
-        <a href="/profiles">Profiles</a>
-        <a href="/contact">Contact</a>
+        <a href="/">Home</a> |
+        <%if (reqInfo.authenticated) { %>
+            <a href="/user">All Profiles</a> |
+            <a href="/user/<%= reqInfo.username %>">My Profile</a> |
+
+        <a href='/user/logout'>Logout</a> [<%= reqInfo.username %>]
+
+        <!-- 'else' must be in separate section with curly brackets to work. -->
+        <% } else { %>
+    
+        <a href='/user/login'>Login</a> |
+        <a href='/user/register'>Register</a> 
+        <% } %>
+
     </nav>
 </header>

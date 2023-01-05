@@ -1,0 +1,14 @@
+<h1>Profiles</h1>
+
+<% for (let i = 0; i < users.length; i++) { %>
+    <div class="profile-card">
+        <a href="user/<%= users[i].username %>">
+            <p><%= users[i].firstName + users[i].lastName %></p>
+        </a>
+        <!-- image will go here -->
+    </div>
+<% } %>
+
+<div class="message">
+    <p><%= errorMsg ? errorMsg : "" %></p>
+</div>

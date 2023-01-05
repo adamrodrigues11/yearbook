@@ -18,8 +18,12 @@
           <div class="sidebar">
               <h2>Other Profiles</h2>
               <ul class="profiles-list">
-                  <% for (let i = 0; i < otherProfiles.length; i++) { %>
-                      <li><a href="/profiles/<%= otherProfiles[i].id %>"><%= otherProfiles[i].name%></a></li>
+                  <% for (let i = 0; i < otherUsers.length; i++) { %>
+                      <li>
+                        <a href="./<%= otherUsers[i].username %>">  
+                          <%= otherUsers[i].firstName + " " + otherUsers[i].lastName %>
+                        </a>
+                      </li>
                   <% } %>
               </ul>
           </div>
