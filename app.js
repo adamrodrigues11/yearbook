@@ -10,8 +10,9 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const fileupload = require("express-fileupload");
 
-
+// how to roll the connection timeout?
 // MongoDB connection
 const mongoose = require("mongoose");
 const uri =
@@ -38,6 +39,7 @@ app.use(logger("dev"));
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended: false}));
+app.use(fileupload());
 
 // session management
 const session = require("express-session");
@@ -49,15 +51,15 @@ const store = new MongoDBStore({
 store.on("error", function (error) {
     console.log(error);
 });
-app.use(
-    require("express-session")({
-        secret: "session secret",
-        resave: false,
-        saveUninitialized: false,
-        cookie: { maxAge: 1000 * 60 },
-        store: store,
-    })
-);
+const sessionOptions = {
+    secret: "session secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 1000 * 60 * 20 }, // 20 min
+    rolling: true,
+    store: store,
+};
+app.use(session(sessionOptions));
 app.use(cookieParser());
 
 // initialize passport and configure for User model
@@ -76,8 +78,8 @@ app.set("layout", "./layouts/main-layout.ejs");
 // make views folder globally accessible 
 app.set("views", path.join(__dirname, "views"));
 // make public folder accessible for serving static files
-app.use("/public", express.static("public"));
-
+// app.use("/public", express.static("public"));
+app.use(express.static("public"));
 // Homepage Routes
 const indexRouter = require("./routers/indexRouter");
 app.use("/", indexRouter);

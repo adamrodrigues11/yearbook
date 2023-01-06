@@ -1,11 +1,12 @@
 "use strict";
+const fs = require('fs');
 const User = require("../models/User");
 
 class UserOps {
     UserOps() {}
 
     async getAllUsers() {
-        let users = await User.find({});
+        let users = await User.find({}).sort({username: 1});
         if(users) {
             return users;
         }
@@ -34,12 +35,12 @@ class UserOps {
         }
     }
 
-    async editUserByUsername(username, newUserData, reqInfo) 
-    // throw error to controller if save can't be made and handle there (redirect to edit page with cached info and errorMsg as query string) 
+    async editUserByUsername(username, newUserData, formProfilePicPath, reqInfo) 
     {
         // const newPassword = newUserData.newPassword;
         // const newPasswordConfirm = newUserData.passwordConfirm;
         const interests = newUserData.interests.split(",").map(interest => interest.trim());
+        const newProfilePicPath = formProfilePicPath;
 
         if ( newUserData.role && reqInfo.roles?.includes("manager")) {
             let roles;
@@ -57,6 +58,7 @@ class UserOps {
             User.updateOne({username: username}, {roles: roles}, function (err) {
                 if (err) {
                     console.log(err.message);
+                    throw err;
                 }
                 else {
                     console.log("Updated roles for user ", username);
@@ -74,14 +76,24 @@ class UserOps {
                     firstName: newUserData.firstName,
                     lastName: newUserData.lastName,
                     interests: interests,
-                    profilePhotoPath: newUserData.profilePhotoPath, 
+                    profilePicPath: newProfilePicPath, 
                 }, 
                 function (err) {
                     if (err) {
                         console.log(err.message);
+                        throw err;
                     }
                     else {
                         console.log("Updated user info for ", username);
+                        // clean up - delete old profile pic from public assets
+                        // fs.unlink(path, (err) => {
+                        // if (err) {
+                        //     console.error(err)
+                        //     return
+                        // }
+
+                        // //file removed
+                        // })
                     }
                 }
             )
@@ -96,27 +108,61 @@ class UserOps {
             }
             else {
                 console.log("Deleted User: ", docs);
+                 // clean up - delete old profile pic from public assets
+                        // fs.unlink(path, (err) => {
+                        // if (err) {
+                        //     console.error(err)
+                        //     return
+                        // }
+
+                        // //file removed
+                        // })
             }
         });
     }
+
+    // comments
+
+    async addCommentToUser(comment, username) {
+        let user = await User.findOne({ username: username });
+        user.comments.push(comment);
+        user.save(function(err, doc) {
+            if(err) {
+                console.log("error adding comment to user: ", username);
+                throw err;
+            }
+            else {
+                console.log("added comment to user: ", doc);
+            }
+        });
+    }
+
+    async searchUsers(searchField, searchString) {
+        let filter;
+        let filterValue = { $regex: searchString, $options: 'i'};
+        switch(searchField) {
+            case "firstName":
+                filter = {firstName: filterValue};
+                break;
+            case "lastName":
+                filter = {lastName: filterValue};
+                break;
+            case "email":
+                filter = {email: filterValue};
+                break;
+            case "interests":
+                filter = {interests: filterValue};
+                break;
+            default:
+                const err = new Error("Error in search field - please choose a valid option"); 
+                console.log(err.message);
+                throw err;
+        }
+        let users = await User.find(filter).sort({username: 1});
+        return users;
+    }   
 }
 
 module.exports = UserOps;
 
 
-// comments
-
-// async addCommentToUser(comment, username) {
-//     let user = await User.findOne({ username: username });
-//     user.comments.push(comment);
-//     try {
-//       let result = await user.save();
-//       console.log("updated user: ", result);
-//       const response = { user: result, errorMessage: "" };
-//       return response;
-//     } catch (error) {
-//       console.log("error saving user: ", result);
-//       const response = { user: user, errorMessage: error };
-//       return response;
-//     }
-//   }

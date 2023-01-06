@@ -8,7 +8,7 @@ Email: <%= user.email %><br/>
 Roles: <%= user.roles %>
 <% } %>
 
-<!-- <img src="<%= user.profilePhotoPath ?? ""%>"> -->
+<img src="<%= user.profilePicPath ?? "/images/defaultProfilePic.png"%>"/>
 
 <h2>Interests</h2>
 <div class="interests-list">
@@ -28,3 +28,19 @@ Roles: <%= user.roles %>
 <div class="message">
     <p><%= errorMsg ? errorMsg : "" %></p>
 </div>
+
+<h2>Comments</h2>
+<div class="comments">
+    <% user.comments  %> 
+    <% for (let i = 0; i < user.comments.length; i++) { %>
+        <div class="comment">
+            <h3><%= user.comments[i].commentAuthor %></h3>
+            <p><%= user.comments[i].commentBody %></p>
+        </div>
+    <% } %>
+    <form action="/user/<%= user.username %>" method="POST">   
+        <input name="commentBody" type="text" placeholder="Enter a comment ...">
+        <input type="submit" value="Submit">        
+    </form>
+</div>
+

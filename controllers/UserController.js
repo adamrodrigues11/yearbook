@@ -7,6 +7,8 @@ const passport = require("passport");
 const UserOps = require("../data/UserOps");
 const _userOps = new UserOps();
 const RequestService = require("../services/RequestService");
+const path = require("path");
+const publicImagesDirPath = path.join(__dirname, "../public/images/");
 
 // Register / create user - GET
 exports.Register = async function (req, res) {
@@ -24,6 +26,14 @@ exports.RegisterUser = async function (req, res) {
     const password = req.body.password;
     const passwordConfirm = req.body.passwordConfirm;
     const interests = req.body.interests.split(",").map(interest => interest.trim());
+    const profilePic = req.files?.profilePic ?? null;
+    let profilePicPath;
+    if(profilePic) {
+        const profilePicAbsPath = publicImagesDirPath + profilePic.name;
+        profilePic.mv(profilePicAbsPath);
+        profilePicPath = `/images/${profilePic.name}`;
+    }
+
     if (password === passwordConfirm) {
         const newUser = new User({
             username: req.body.username,
@@ -31,7 +41,7 @@ exports.RegisterUser = async function (req, res) {
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             interests: interests,
-            profilePhotPath: req.body.profilePhotoPath,
+            profilePicPath: profilePicPath,
             roles: ["user"],
         });
         User.register(
@@ -116,10 +126,21 @@ exports.Logout = async function (req, res) {
 
 // view all user profiles
 exports.ViewAllProfiles = async function(req, res) {
-    let reqInfo = RequestService.reqHelper(req);
-    let errorMsg = req.query.errorMsg;
+    const reqInfo = RequestService.reqHelper(req);
+    let {searchField, searchString, errorMsg} = req.query;
     if(reqInfo.authenticated) {
-        const users = await _userOps.getAllUsers();
+        let users;
+        if(!errorMsg && searchString) {
+            try {
+                users = await _userOps.searchUsers(searchField, searchString);
+            }
+            catch(error) {
+                errorMsg = error.message;
+            }
+        }
+        else {
+            users = await _userOps.getAllUsers();
+        }
         return res.render("user/profiles", {
             title: "Profiles",
             users: users,
@@ -161,10 +182,29 @@ exports.ProfileDetails = async function (req, res) {
     }
 };
 
+// saving comments to user profile
+exports.PostCommentToProfile = async function (req, res) {
+    const username = req.params.username;
+    const reqInfo = RequestService.reqHelper(req);
+    const comment = {
+        commentBody: req.body.commentBody,
+        commentAuthor: reqInfo.username,
+    };
+    let errorMsg = "";
+    try {
+        await _userOps.addCommentToUser(comment, username);
+    }
+    catch(error) {
+        errorMsg = error.message;
+    }
+    res.redirect(`./${username}?errorMsg=${errorMsg}`);
+}
+
 // edit user profile - GET
 // only admin, manager, or self
 exports.Edit = async function (req, res) {
     let reqInfo = RequestService.reqHelper(req);
+    let errorMsg = req.query.errorMsg;
     if(reqInfo.authenticated) {
         let username = req.params.username;
         // if active user is a manager or selected profile has the same username as active user
@@ -174,7 +214,7 @@ exports.Edit = async function (req, res) {
                 title: `Edit Profile - ${user.username}`,
                 user: user,
                 reqInfo: reqInfo,
-                // errorMsg: errorMsg,
+                errorMsg: errorMsg,
             });
         }
         else {
@@ -194,8 +234,15 @@ exports.EditProfile = async function (req, res) {
     let username = req.params.username;
     let newUserData = req.body;
     let errorMsg;
+    const newProfilePic = req.files?.profilePic ?? null;
+    let newProfilePicPath;
+    if(newProfilePic) {
+        const newProfilePicAbsPath = publicImagesDirPath + newProfilePic.name;
+        newProfilePic.mv(newProfilePicAbsPath);
+        newProfilePicPath = `/images/${newProfilePic.name}`;
+    }
     try {
-        _userOps.editUserByUsername(username, newUserData, reqInfo);
+        _userOps.editUserByUsername(username, newUserData, newProfilePicPath, reqInfo);
         res.redirect(`../${username}`)
         return
     } 
@@ -231,13 +278,3 @@ exports.DeleteUserByUsername = async function (req, res) {
 };
 
 
-// saving comments to user profile
-// console.log("Saving a comment for ", req.params.username);
-// const comment = {
-//   commentBody: req.body.comment,
-//   commentAuthor: reqInfo.username,
-// };
-// let profileInfo = await _userOps.addCommentToUser(
-//   comment,
-//   req.params.username
-// );
