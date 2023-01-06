@@ -28,7 +28,7 @@ const userSchema = new Schema(
         interests: {
             type: Array,
         },
-        profilePhotoPath: {
+        profilePicPath: {
             type: String
         },
         roles : {
