@@ -32,11 +32,11 @@
                        value="<%= user.lastName ? user.lastName : '' %>"></td>
         </tr>                        
         <tr>
-            <td>Interests:</td>
+            <td>Interests (comma seperated):</td>
             <td><input name="interests" type="text" value="<%= user.interests ? user.interests.join(", ") : '' %>"></td>
         </tr>
         <tr>
-            <td>Profile Picture (&lt; 100kb)</td>
+            <td>Profile Picture (Optional):</td>
             <td><input type="file" id="profilePic" name="profilePic"></td>
         </tr>
         <tr>
