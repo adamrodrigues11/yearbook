@@ -1,14 +1,27 @@
 <h1>Profile</h1>
-    
-Username: <%= user.username %><br/>
-Name: <%= user.firstName %> <%= user.lastName %><br/>
-Email: <%= user.email %><br/>
 
-<% if(user.roles?.length > 0) { %>
-Roles: <%= user.roles %>
-<% } %>
+<table>
+    <tr>
+        <td><p>Username: </p></td>
+        <td><p><%= user.username %></p></td>
+    </tr>
+    <tr>
+        <td><p>Name: </p></td>
+        <td><p><%= user.firstName %> <%= user.lastName %></p></td>
+    </tr>
+    <tr>
+        <td><p>Email: </p></td>
+        <td><p><%= user.email %></p></td>
+    </tr>
+    <% if(user.roles?.includes("admin") || user.roles?.includes("manager")) { %>
+    <tr>
+        <td><p>Roles: </p></td>
+        <td><p><%= user.roles %></p></td>
+    </tr> 
+    <% } %>
+</table>
 
-<img src="<%= user.profilePicPath ?? "/images/defaultProfilePic.png"%>"/>
+<img class="profile-pic" src="<%= user.profilePicPath ?? "/images/defaultProfilePic.png"%>"/>
 
 <h2>Interests</h2>
 <div class="interests-list">
