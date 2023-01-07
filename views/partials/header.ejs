@@ -3,7 +3,7 @@
     <nav>
         <a href="/">Home</a> |
         <%if (reqInfo.authenticated) { %>
-            <a href="/user">All Profiles</a> |
+            <a href="/user/">All Profiles</a> |
             <a href="/user/<%= reqInfo.username %>">My Profile</a> |
 
         <a href='/user/logout'>Logout</a> [<%= reqInfo.username %>]

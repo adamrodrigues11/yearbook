@@ -1,12 +1,12 @@
 "use strict";
-const fs = require('fs');
 const User = require("../models/User");
+const FileCleaner = require("../services/FileCleaner");
 
 class UserOps {
     UserOps() {}
 
     async getAllUsers() {
-        let users = await User.find({}).sort({username: 1});
+        let users = await User.find({}).sort({lastName: 1}); // sort by LastName ascending
         if(users) {
             return users;
         }
@@ -35,93 +35,68 @@ class UserOps {
         }
     }
 
-    async editUserByUsername(username, newUserData, formProfilePicPath, reqInfo) 
-    {
-        // const newPassword = newUserData.newPassword;
-        // const newPasswordConfirm = newUserData.passwordConfirm;
-        const interests = newUserData.interests.split(",").map(interest => interest.trim());
-        const newProfilePicPath = formProfilePicPath;
-
-        if ( newUserData.role && reqInfo.roles?.includes("manager")) {
-            let roles;
-            switch(newUserData.role) {
-                case "manager":
-                    roles = ["user", "manager"];
-                    break;
-                case "admin":
-                    roles = ["user", "manager", "admin"];
-                    break;
-                default:
-                    roles = ["user"];
-                    break;
-            }
-            User.updateOne({username: username}, {roles: roles}, function (err) {
+    async editUserByUsername(username, newUserData, newProfilePicPath, reqInfo) 
+    {  
+        const interests = newUserData.interests?.split(",").map(interest => interest.trim()) ?? [];
+        let user = await User.findOne({username: username});
+        // const oldProfilePicPath = user.profilePicPath;
+        user.email = newUserData.email;
+        user.firstName = newUserData.firstName;
+        user.lastName = newUserData.lastName;
+        user.interests = interests;
+        user.profilePicPath = newProfilePicPath ?? user.profilePicPath, 
+        
+        user.save(function (err) {
                 if (err) {
                     console.log(err.message);
                     throw err;
                 }
                 else {
-                    console.log("Updated roles for user ", username);
+                    console.log("Updated user info for ", username);
+                    // FileCleaner.deleteOldProfilePic(oldProfilePicPath);
                 }
-            })
-        }
+            }
+        );
+    }
 
-        if(reqInfo.roles?.includes("manager") || username === reqInfo.username) {
-            // if (newPassword === newPasswordConfirm) { 
-            // }
-            User.updateOne(
-                {username: username}, 
-                {
-                    email: newUserData.email,
-                    firstName: newUserData.firstName,
-                    lastName: newUserData.lastName,
-                    interests: interests,
-                    profilePicPath: newProfilePicPath, 
-                }, 
-                function (err) {
-                    if (err) {
-                        console.log(err.message);
-                        throw err;
-                    }
-                    else {
-                        console.log("Updated user info for ", username);
-                        // clean up - delete old profile pic from public assets
-                        // fs.unlink(path, (err) => {
-                        // if (err) {
-                        //     console.error(err)
-                        //     return
-                        // }
-
-                        // //file removed
-                        // })
-                    }
-                }
-            )
+    async editRolesByUsername(username, newUserData) {
+        let roles;
+        switch(newUserData.role) {
+            case "manager":
+                roles = ["user", "manager"];
+                break;
+            case "admin":
+                roles = ["user", "manager", "admin"];
+                break;
+            default:
+                roles = ["user"];
+                break;
         }
+        User.updateOne({username: username}, {roles: roles}, function (err) {
+            if (err) {
+                console.log(err.message);
+                throw err;
+            }
+            else {
+                console.log("Updated roles for user ", username);
+            }
+        });
     }
 
     async deleteUserByUsername(username) {
-        User.findOneAndDelete({username: username}, function (err, docs) {
+        let user = User.findOne({username: username});
+        // const oldProfilePicPath = user.profilePicPath; 
+        User.deleteOne({username: username}, function (err, docs) {
             if (err) {
                 console.log(err.message);
                 throw err;
             }
             else {
                 console.log("Deleted User: ", docs);
-                 // clean up - delete old profile pic from public assets
-                        // fs.unlink(path, (err) => {
-                        // if (err) {
-                        //     console.error(err)
-                        //     return
-                        // }
-
-                        // //file removed
-                        // })
+                // FileCleaner.deleteOldProfilePic(oldProfilePicPath);
             }
         });
     }
-
-    // comments
 
     async addCommentToUser(comment, username) {
         let user = await User.findOne({ username: username });

@@ -1,6 +1,6 @@
 <h1>Profiles</h1>
 
-<form action="/user" method="GET"> 
+<form action="/user/" method="GET"> 
     <label for="searchField">Search by: </label>  
     <select name="searchField" id="searchField">
         <option value="firstName">First Name</option>
@@ -15,7 +15,7 @@
 <% if(users) {
     for (let i = 0; i < users.length; i++) { %>
         <div class="profile-card">
-            <a href="user/<%= users[i].username %>">
+            <a href="<%= users[i].username %>">
                 <p><%= users[i].firstName + " " + users[i].lastName %></p>
             </a>
         </div>
