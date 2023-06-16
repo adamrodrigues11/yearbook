@@ -14,8 +14,8 @@ const mongoose = require("mongoose");
 
 // how to roll the connection timeout?
 // MongoDB connection
-const uri =
-    "mongodb+srv://user-02:qCRv7kEhqCbbaOxp@ssd.bfarfsk.mongodb.net/Yearbook"
+const uri = process.env.MONGODB_URI;
+    
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 db.once("open", function () {
